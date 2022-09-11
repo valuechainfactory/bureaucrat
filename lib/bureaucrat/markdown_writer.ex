@@ -42,8 +42,12 @@ defmodule Bureaucrat.MarkdownWriter do
       puts(file, "  * [#{controller}](##{anchor})")
 
       Enum.each(actions, fn {action, _} ->
-        anchor = to_anchor(controller, action)
-        puts(file, "    * [#{action}](##{anchor})")
+        action = action |> String.split("\n") |> List.first() |> String.trim()
+
+        if action !== "" do
+          anchor = to_anchor(controller, action)
+          puts(file, "    * [#{action}](##{anchor})")
+        end
       end)
     end)
 
@@ -51,8 +55,7 @@ defmodule Bureaucrat.MarkdownWriter do
   end
 
   defp write_controller(controller, records, file) do
-    anchor = to_anchor(controller)
-    puts(file, "## <a id=#{anchor}></a>#{controller}")
+    puts(file, "## #{controller}")
 
     Enum.each(records, fn {action, records} ->
       write_action(action, controller, records, file)
@@ -82,7 +85,7 @@ defmodule Bureaucrat.MarkdownWriter do
 
   defp write_example({%Phoenix.Socket.Message{topic: topic, payload: payload, event: event}, _}, file) do
     file
-    |> puts("#### Message")
+    |> puts("##### Message")
     |> puts("* __Topic:__ #{topic}")
     |> puts("* __Event:__ #{event}")
 
